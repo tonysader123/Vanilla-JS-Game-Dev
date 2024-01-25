@@ -5,9 +5,11 @@ const ctx = canvas.getContext('2d');
 //Global Variables
 const CANVAS_WIDTH = canvas.width = 500;
 const CANVAS_HEIGHT = canvas.height = 1000;
-const numberOfEnemies = 40;
+const numberOfEnemies = 5;
 const forwardEnemiesArray = [];
-const randomEnemiesArray = [];
+const shakeEnemiesArray = [];
+const elipseEnemiesArray = [];
+const zipEnemiesArray = [];
 let gameFrame = 0;
 let difficulty = 1;
 
@@ -33,7 +35,7 @@ class Enemy{
 }
 
 //Inheritance class -> Random Pattern Enemy
-class randomPatternEnemy extends Enemy{
+class shakePatternEnemy extends Enemy{
     constructor(width, height){
         super(width, height);
         this.image.src = './enemies/enemy1.png';
@@ -74,11 +76,76 @@ class forwardPatternEnemy extends Enemy{
             this.frame > 4 ? this.frame = 0 : this.frame++;
         }
     }   
+
 }
 
-//Create random Pattern Enemies
+//Inheritance Class -> Elipse Pattern
+class elipsePatternEnemy extends Enemy{
+    constructor(width, height){
+        super(width, height);
+        this.image.src = './enemies/enemy3.png';
+        this.x = Math.random() * (canvas.width - this.width);
+        this.y = Math.random() * (canvas.height - this.width);
+        this.flapSpeed = Math.floor(Math.random() * 10 + 1) ; 
+        this.forwardSpeed = Math.random() * 1 + 1;
+        this.angleSpeed = Math.random() * difficulty;
+        this.angle = Math.random() * 1;
+        this.curve = Math.random() * 200 + difficulty;       //curve gain
+    }
+   
+    update(){
+        this.x = canvas.width/2 * Math.sin(this.angle * Math.PI/360) + (canvas.width/2 - this.width/2); //center horizontally
+        this.y = canvas.height/2 * Math.cos(this.angle * Math.PI/590) + (canvas.height/2 - this.height/2);
+        this.angle += this.angleSpeed;
+        if (this.x + this.width < 0) this.x = canvas.width;
+        //animate sprites, the number is how many frames are in the animation
+        if (gameFrame % this.flapSpeed === 0){
+            this.frame > 4 ? this.frame = 0 : this.frame++;
+        }
+    }   
+
+}
+
+//Inheritance Class -> Zip Pattern
+class zipPatternEnemy extends Enemy{
+    constructor(width, height){
+        super(width, height);
+        this.image.src = './enemies/enemy4.png';
+        this.x = Math.random() * (canvas.width - this.width);
+        this.y = Math.random() * (canvas.height - this.width);
+        this.flapSpeed = Math.floor(Math.random() * 10 + 1) ; 
+        this.forwardSpeed = Math.random() * 1 + 1;
+        this.newX = Math.random() * (canvas.width);
+        this.newY = Math.random() * (canvas.height);
+        this.interval = Math.floor(Math.random() * 200+50);
+    }
+   
+    update(){
+        //this.x = 0; //center horizontally
+       // this.y = 0;
+
+       //If statement to reset the random position of the sprite
+       if (gameFrame % this.interval === 0){
+        this.newX = Math.random() * (canvas.width - this.width);
+        this.newY = Math.random() * (canvas.height - this.width);
+       }
+       let dx = this.x - this.newX;
+       let dy = this.y - this.newY;
+       this.x -= dx/(40 * (1/difficulty));
+       this.y -= dy/(40 * (1/difficulty));
+
+        if (this.x + this.width < 0) this.x = canvas.width;
+        //animate sprites, the number is how many frames are in the animation
+        if (gameFrame % this.flapSpeed === 0){
+            this.frame > 4 ? this.frame = 0 : this.frame++;
+        }
+    }   
+
+}
+
+//Create shake Pattern Enemies
 for (let i = 0; i< numberOfEnemies; i++){
-    randomEnemiesArray.push(new randomPatternEnemy(293, 155));
+    shakeEnemiesArray.push(new shakePatternEnemy(293, 155));
 }
 
 //Create forward Pattern Enemies
@@ -86,14 +153,33 @@ for (let i = 0; i< numberOfEnemies; i++){
     forwardEnemiesArray.push(new forwardPatternEnemy(266, 188));
 }
 
+//Create elipse Pattern Enemies
+for (let i = 0; i< numberOfEnemies; i++){
+    elipseEnemiesArray.push(new elipsePatternEnemy(218, 177));
+}
+
+//Create zip Pattern Enemies
+for (let i = 0; i< numberOfEnemies; i++){
+    zipEnemiesArray.push(new zipPatternEnemy(213, 213));
+}
+
+
 //animate loop function
 function animate(){
     ctx.clearRect(0,0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    randomEnemiesArray.forEach(enemy =>{
-        enemy.update();
+    shakeEnemiesArray.forEach(enemy =>{
+       enemy.update();
         enemy.draw();
     });
     forwardEnemiesArray.forEach(enemy =>{
+        enemy.update();
+        enemy.draw();
+    });
+    elipseEnemiesArray.forEach(enemy =>{
+        enemy.update();
+        enemy.draw();
+    });
+    zipEnemiesArray.forEach(enemy =>{
         enemy.update();
         enemy.draw();
     });
